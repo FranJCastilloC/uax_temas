@@ -1,6 +1,12 @@
 # UAX temas
 
-Biblioteca local de matemáticas, estadística, programación y aprendizaje automático. Incluye explicaciones visuales, ejercicios, rutas de estudio y referencias bibliográficas.
+Biblioteca de matemáticas, estadística, programación y aprendizaje automático. Incluye explicaciones visuales, ejercicios, rutas de estudio y referencias bibliográficas.
+
+## Abrir en la web
+
+Visita [UAX temas](https://franjcastilloc.github.io/uax_temas/). Cada visitante guarda su progreso en su propio navegador. El progreso de la versión local y el de la web se almacenan por separado.
+
+GitHub Pages publica la carpeta biblioteca/ mediante .github/workflows/pages.yml cada vez que se actualiza main.
 
 ## Ejecutar en tu computadora
 
