@@ -1,53 +1,38 @@
-# Matemáticas Studio
+# UAX temas
 
-Biblioteca interactiva de matemáticas, estadística, programación y aprendizaje automático. Incluye explicaciones visuales, ejercicios, rutas de estudio, referencias bibliográficas y seguimiento del progreso.
+Biblioteca local de matemáticas, estadística, programación y aprendizaje automático. Incluye explicaciones visuales, ejercicios, rutas de estudio y referencias bibliográficas.
 
-## Ejecutar localmente
+## Ejecutar en tu computadora
 
-Necesitas Python 3. Desde la raíz del proyecto ejecuta
+Necesitas Python 3. Desde la carpeta del proyecto ejecuta
 
 ```sh
 python3 -m http.server 8765 --bind 127.0.0.1 --directory biblioteca
 ```
 
-Abre http://localhost:8765. El progreso se guarda en el almacenamiento local de tu navegador. Esta modalidad funciona sin credenciales, Redis ni instalación de paquetes.
+Abre http://127.0.0.1:8765. Para detener el servidor pulsa Ctrl+C en la terminal.
 
-## Configuración privada
+El servidor escucha exclusivamente en tu computadora y sirve la carpeta biblioteca/. Usa siempre esa dirección y ese puerto para acceder al mismo progreso.
 
-.env.example contiene los nombres de las variables para Vercel. Cópialo como .env.local para usar vercel dev y completa tus credenciales. Para producción configura las variables en el panel de Vercel. Un archivo .env por sí solo requiere una herramienta que lo cargue.
+## Progreso y privacidad
 
-```sh
-cp .env.example .env.local
-npm ci
-npx vercel dev
-```
+El progreso, las respuestas y las notas se guardan en localStorage del navegador. Usa el mismo navegador y perfil para conservarlos. Borrar los datos del sitio o usar navegación privada puede eliminar ese progreso.
 
-BIBLIOTECA_USUARIO y BIBLIOTECA_CLAVE protegen las páginas y la API. UPSTASH_REDIS_REST_URL y UPSTASH_REDIS_REST_TOKEN conectan una base Redis propia. PREFIJO_REDIS identifica los datos de la instalación y VENTANA_FOTO_MIN controla el intervalo entre fotografías del progreso.
+Las páginas cargan fuentes tipográficas de Google Fonts y KaTeX desde cdnjs para mostrar las fórmulas. Esas solicitudes requieren conexión a Internet y comunican tu dirección IP a esos proveedores. El código de la aplicación guarda las notas y el progreso en el navegador.
 
-Los archivos .env y .env.local están excluidos de Git. Conserva las credenciales en tu equipo o en el proveedor de despliegue.
-
-## Publicar tu instalación
-
-Para Vercel sigue [VERCEL.md](VERCEL.md). Para Docker con Caddy y SQLite sigue [despliegue/LEEME.md](despliegue/LEEME.md).
-
-La sincronización del servidor usa un espacio de progreso por instalación. Las personas con las credenciales de esa instalación comparten notas, progreso e historial.
+Las citas contienen títulos, autores, secciones y números de página para localizar la lectura en la edición correspondiente.
 
 ## Estructura
 
-- biblioteca/index.html muestra el catálogo y las rutas de estudio.
+- biblioteca/index.html contiene la portada, el catálogo y las rutas de estudio.
 - biblioteca/conceptos/ contiene las páginas interactivas.
 - biblioteca/catalogo.js registra los conceptos y sus relaciones.
-- biblioteca/fuentes.js registra títulos, autores y notas bibliográficas.
-- biblioteca/nucleo/ contiene los estilos, el motor compartido y los verificadores.
-- api/index.py implementa la sincronización con Redis en Vercel.
-- middleware.js controla el acceso en Vercel.
-- despliegue/ contiene la alternativa Docker con SQLite.
-
-Las citas conservan la fuente, sección y numeración de página para localizar la lectura en la edición correspondiente.
+- biblioteca/fuentes.js registra las referencias bibliográficas.
+- biblioteca/nucleo/ contiene el motor compartido, los estilos y los verificadores.
 
 ## Verificar cambios
 
-Requiere Node.js y Python 3. Desde la raíz ejecuta
+Para las comprobaciones de desarrollo necesitas Node.js y Python 3. Ejecuta desde la raíz
 
 ```sh
 node --check biblioteca/nucleo/nucleo.js
@@ -55,18 +40,4 @@ python3 biblioteca/nucleo/verificar_catalogo.py
 python3 biblioteca/nucleo/verificar.py biblioteca/conceptos/covarianza.html
 ```
 
-## Crear un repositorio público
-
-Para migrar desde una copia con historial privado, utiliza una exportación limpia de los archivos actuales y crea un repositorio nuevo. El historial anterior conserva versiones de los datos eliminados.
-
-En la carpeta exportada ejecuta
-
-```sh
-git init -b main
-git config user.name "Tu nombre público"
-git config user.email "Tu correo noreply de GitHub"
-git add .
-git commit -m "Versión pública inicial"
-```
-
-Crea un repositorio vacío en tu cuenta de GitHub y sigue sus instrucciones para agregar el remoto y subir la rama main. Antes de subir revisa git diff --cached y git ls-files para comprobar qué archivos se incluyen.
+Antes de publicar cambios revisa los archivos preparados con git diff --cached. Los archivos de entorno y la configuración privada se excluyen mediante .gitignore.

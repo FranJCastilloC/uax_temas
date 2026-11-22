@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Biblioteca de matemáticas</title>
+<title>UAX temas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="nucleo/estilo.css">
@@ -86,10 +86,6 @@ a.concepto:hover { border-color: var(--ink-3); transform: translateY(-1px); }
 .como .card h3 { font-size: 15px; margin: 0 0 6px; }
 .como .card p { margin: 0; font-size: 14px; color: var(--ink-2); }
 .como .card code { font-family: var(--f-mono); font-size: 13px; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; color: var(--ink); }
-.nube { font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); text-decoration: none; margin-right: 10px; display: inline-flex; align-items: center; gap: 6px; }
-.nube::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); }
-.nube[data-estado="sincronizado"]::before { background: var(--ok); }
-.nube[data-estado="error"]::before { background: var(--bad); }
 </style>
 </head>
 <body>
@@ -98,15 +94,14 @@ a.concepto:hover { border-color: var(--ink-3); transform: translateY(-1px); }
   <div class="topbar-in">
     <a class="brand" href="index.html">Biblioteca <span>/ matemáticas</span></a>
     <span class="spacer"></span>
-    <a class="nube" id="nube" href="historial.html" hidden>Historial</a>
     <button type="button" class="ghost" id="btnTema">Tema</button>
   </div>
 </div>
 
 <div class="page">
   <header class="hero">
-    <p class="eyebrow">Biblioteca de matemáticas</p>
-    <h1>Matemáticas que se ven, se tocan y se recuerdan</h1>
+    <p class="eyebrow">UAX temas</p>
+    <h1>UAX temas</h1>
     <p class="lede">
       Una página por concepto, de lo más simple a lo más profundo: un <b>visual interactivo</b> para tocar la idea,
       un <b>paso a paso</b> con candado que no te deja avanzar sin pensar, el algoritmo en <b>Python y R</b>, y <b>retos</b> para fijarla.
@@ -156,7 +151,7 @@ a.concepto:hover { border-color: var(--ink-3); transform: translateY(-1px); }
       <h2>Sumar un concepto nuevo</h2>
     </div>
     <div class="como">
-      <div class="card"><h3>1. Trae el tema</h3><p>Abre una sesión de Claude Code en la carpeta <code>Math Videos</code> y di algo como <code>construyamos la tanda 1</code> o <code>agreguemos regresión logística</code>. Si tienes apuntes, un PDF o la página del libro, pásalos.</p></div>
+      <div class="card"><h3>1. Trae el tema</h3><p>Abre una sesión de Claude Code en la carpeta <code>UAX_dia</code> y di algo como <code>construyamos la tanda 1</code> o <code>agreguemos regresión logística</code>. Si tienes apuntes, un PDF o la página del libro, pásalos.</p></div>
       <div class="card"><h3>2. Se construye la página</h3><p>Claude arma el visual, el recorrido paso a paso y los retos siguiendo el mismo estándar, y la pasa de planeada a lista en este índice.</p></div>
       <div class="card"><h3>3. Vuelve a repasar</h3><p>Los retos se guardan en este navegador. El índice te marca qué toca repasar a los 1, 3, 7, 14 y 30 días.</p></div>
     </div>
@@ -174,14 +169,6 @@ a.concepto:hover { border-color: var(--ink-3); transform: translateY(-1px); }
   var B = window.Biblioteca, CAT = window.CATALOGO || [], UNIS = window.UNIDADES || [], MATS = window.MATERIAS || [];
   var $ = function (id) { return document.getElementById(id); };
   B.botonTema($("btnTema"));
-  document.addEventListener("biblioteca:nube", function (e) {
-    var n = e.detail, el = $("nube");
-    if (!n.servidor) return;
-    el.hidden = false;
-    el.setAttribute("data-estado", n.estado);
-    el.title = n.estado === "error" ? "No se pudo guardar en el servidor; se reintenta con el próximo cambio" : "Progreso guardado en el servidor";
-    $("pie").textContent = "El progreso se guarda en este navegador y en el servidor, con una foto cada 10 minutos de estudio. Puedes verlo y descargarlo en el historial.";
-  });
 
   function norm(s) { return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }

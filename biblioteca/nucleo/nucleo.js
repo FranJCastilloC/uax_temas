@@ -11,18 +11,13 @@
     tex(root) / texStr(src)          formulas con KaTeX
     pasos(root, cfg)                 recorrido paso a paso con candado
     opcionMultiple / numerico / ordenar / cazarError / tarjetas   tipos de reto
-    citas(root) / lecturas(el)       chips de cita al PDF y la lista de lecturas de la pagina
+    citas(root) / lecturas(el)       referencias bibliográficas y la lista de lecturas de la pagina
     conexiones(id)                   prerrequisitos, siguientes y "Donde te lo ensenaron" desde el catalogo
     vidaReal(root, cfg)              codigo Python y R animado linea por linea
 
   Todo el estado vive en localStorage y cada acceso esta protegido: si el
   navegador lo bloquea, la pagina funciona igual pero sin recordar progreso.
 
-  Cuando la biblioteca se sirve desde el servidor de produccion (carpeta despliegue/),
-  el progreso tambien se sincroniza con /api/progreso (Docker en despliegue/ o Vercel con api/index.py): al cargar se mezcla con lo que
-  hay guardado, y cada cambio se envia unos segundos despues. Abierta con doble clic o
-  con el servidor local de pruebas no hay /api y todo queda solo en el navegador.
-  B.nube dice el estado: "local", "sincronizando", "sincronizado" o "error".
 */
 (function () {
   "use strict";
@@ -35,96 +30,8 @@
   }
   function guardar(db) {
     try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) { /* sin almacenamiento */ }
-    programarEnvio();
   }
 
-  /* ---------------- sincronizacion con el servidor ---------------- */
-  var HTTP = location.protocol === "http:" || location.protocol === "https:";
-  var nube = { estado: "local", servidor: false, pdf: false, actualizado: null };
-  // origen sin usuario ni clave: fetch rechaza rutas relativas si la pagina se abrio con credenciales en la URL
-  var API = HTTP ? location.origin : "";
-  var envioPendiente = null;
-
-  function avisarNube(estado) {
-    nube.estado = estado;
-    try { document.dispatchEvent(new CustomEvent("biblioteca:nube", { detail: nube })); } catch (e) { /* nada */ }
-  }
-  // JSON con claves y listas de valores simples ordenadas, para comparar sin importar el orden
-  function canonico(x) {
-    if (Array.isArray(x)) {
-      var simples = x.every(function (v) { return v === null || typeof v !== "object"; });
-      var a = x.map(canonico);
-      if (simples) a.sort();
-      return "[" + a.join(",") + "]";
-    }
-    if (x && typeof x === "object") {
-      return "{" + Object.keys(x).sort().map(function (k) { return JSON.stringify(k) + ":" + canonico(x[k]); }).join(",") + "}";
-    }
-    return JSON.stringify(x);
-  }
-  function crudo() {
-    try { return localStorage.getItem(KEY) || "{}"; } catch (e) { return "{}"; }
-  }
-  function enviar(alCargar) {
-    envioPendiente = null;
-    var texto = crudo();
-    var enviado;
-    try { enviado = JSON.parse(texto) || {}; } catch (e) { enviado = {}; }
-    avisarNube("sincronizando");
-    return fetch(API + "/api/progreso", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ datos: enviado }),
-      credentials: "same-origin"
-    }).then(function (r) {
-      if (!r.ok) throw new Error(r.status);
-      return r.json();
-    }).then(function (res) {
-      nube.servidor = true;
-      nube.actualizado = res.actualizado;
-      if (crudo() !== texto) { programarEnvio(); return; }   // hubo cambios mientras se enviaba
-      if (canonico(res.datos) !== canonico(enviado)) {
-        // el servidor trajo progreso de otro dispositivo: se guarda y, al cargar, se recarga una vez
-        try { localStorage.setItem(KEY, JSON.stringify(res.datos)); } catch (e) { /* nada */ }
-        if (alCargar) {
-          var ultima = 0;
-          try { ultima = +sessionStorage.getItem("biblioteca:recarga") || 0; } catch (e) { /* nada */ }
-          if (Date.now() - ultima > 15000) {
-            try { sessionStorage.setItem("biblioteca:recarga", String(Date.now())); } catch (e) { /* nada */ }
-            location.reload();
-            return;
-          }
-        }
-      }
-      avisarNube("sincronizado");
-    }).catch(function () {
-      avisarNube(nube.servidor ? "error" : "local");
-    });
-  }
-  function programarEnvio() {
-    if (!HTTP || !nube.servidor) return;
-    if (envioPendiente) clearTimeout(envioPendiente);
-    envioPendiente = setTimeout(function () { enviar(false); }, 2000);
-  }
-  if (HTTP) {
-    fetch(API + "/api/salud", { credentials: "same-origin" }).then(function (r) {
-      if (!r.ok) throw new Error(r.status);
-      return r.json();
-    }).then(function (j) {
-      if (!j || !j.ok) throw new Error("sin api");
-      nube.servidor = true;
-      return enviar(true);
-    }).catch(function () { avisarNube("local"); });
-    // al salir de la pagina con un envio pendiente, se manda de inmediato
-    window.addEventListener("pagehide", function () {
-      if (!envioPendiente || !nube.servidor) return;
-      clearTimeout(envioPendiente);
-      envioPendiente = null;
-      try {
-        navigator.sendBeacon(API + "/api/progreso", new Blob([JSON.stringify({ datos: JSON.parse(crudo()) })], { type: "application/json" }));
-      } catch (e) { /* nada */ }
-    });
-  }
   function hoy() {
     var d = new Date();
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
@@ -158,7 +65,6 @@
 
   var B = window.Biblioteca = {};
   B.mezclar = mezclar;
-  B.nube = nube;
   B.hoy = hoy;
   B.INTERVALOS = [1, 3, 7, 14, 30];
 
@@ -175,7 +81,7 @@
   };
 
   // "Ya lo domino": una marca que el usuario pone a mano. Se guarda como nota ("1" o "0") para que
-  // viaje con el resto del progreso al servidor. Un tema marcado cuenta como dominado al 100 %.
+  // quede junto al resto del progreso local. Un tema marcado cuenta como dominado al 100 %.
   B.dominado = function (id) { return B.nota(id, "dominado") === "1"; };
   B.marcarDominado = function (id, si) { B.nota(id, "dominado", si ? "1" : "0"); return !!si; };
 
