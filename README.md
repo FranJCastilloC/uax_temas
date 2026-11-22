@@ -6,7 +6,7 @@ Biblioteca de matemáticas, estadística, programación y aprendizaje automátic
 
 Visita [UAX temas](https://franjcastilloc.github.io/uax_temas/). Cada visitante guarda su progreso en su propio navegador. El progreso de la versión local y el de la web se almacenan por separado.
 
-GitHub Pages publica la carpeta biblioteca/ mediante .github/workflows/pages.yml cada vez que se actualiza main.
+GitHub Pages publica desde la raíz de main. La entrada index.html abre la biblioteca. Los cambios se publican al actualizar esa rama.
 
 ## Ejecutar en tu computadora
 
